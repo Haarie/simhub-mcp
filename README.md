@@ -40,6 +40,18 @@ Or add to `claude_desktop_config.json` / Claude Code MCP config manually:
 If the Property Server plugin uses a non-default host/port, set `SIMHUB_HOST` / `SIMHUB_PORT`
 env vars on the server entry.
 
+Set `SIMHUB_READ_ONLY=1` to run the server for telemetry and diagnostics only: `trigger_input` is then
+not registered, so the assistant cannot fire control mappings (which can drive effects or hardware on
+your rig). All other tools are read-only already.
+
+```json
+"simhub": {
+  "command": "C:\\path\\to\\simhub-mcp\\.venv\\Scripts\\python.exe",
+  "args": ["-m", "simhub_mcp.server"],
+  "env": { "SIMHUB_READ_ONLY": "1" }
+}
+```
+
 ## Tools
 
 - `list_properties(prefix="")` - catalog of `dcp.*` / `acc.*` properties (from the plugin's `help`).
@@ -47,6 +59,7 @@ env vars on the server entry.
 - `get_properties(names, timeout=2.0)` - batch version.
 - `get_telemetry_snapshot()` - speed, rpm, gear, pedals, lap/timing, fuel, track/car, flags.
 - `trigger_input(name, mode="press")` - fire a SimHub control mapping (`press` / `pressed` / `released`).
+  Not available when `SIMHUB_READ_ONLY` is set.
 - `shakeit_bass_structure()` / `shakeit_motors_structure()` - list ShakeIt profiles + GUIDs, for
   use with `sib.<guid>.gain` / `sim.<guid>.gain` etc.
 

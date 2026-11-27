@@ -9,6 +9,7 @@ from .simhub_client import SimHubClient
 
 HOST = os.environ.get("SIMHUB_HOST", "127.0.0.1")
 PORT = int(os.environ.get("SIMHUB_PORT", "18082"))
+READ_ONLY = os.environ.get("SIMHUB_READ_ONLY", "").strip().lower() in {"1", "true", "yes", "on"}
 
 mcp = FastMCP("simhub")
 client = SimHubClient(host=HOST, port=PORT)
@@ -81,13 +82,16 @@ async def get_telemetry_snapshot() -> dict:
     return result
 
 
-@mcp.tool()
 async def trigger_input(name: str, mode: Literal["press", "pressed", "released"] = "press") -> str:
     """Trigger a SimHub control/input mapping by name (as configured in SimHub's Controls mapper).
     'press' sends a full press+release; 'pressed'/'released' send only that half, for controls
     that need to be held."""
     await client.trigger_input(name, mode)
     return f"Sent {mode} for input '{name}'."
+
+
+if not READ_ONLY:
+    mcp.tool()(trigger_input)
 
 
 @mcp.tool()
